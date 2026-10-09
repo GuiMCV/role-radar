@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import Creditos from './Creditos.jsx'
 import Loading from './Loading.jsx'
+import Cartao from './Cartao.jsx'
+import MeuPonto from './MeuPonto.jsx'
 
 export default class App extends Component {
   state = {
@@ -21,7 +23,7 @@ export default class App extends Component {
         })
       },
       (erro) => {
-        console.log(erro)
+        console.log('MeuPonto removido')
         this.setState({
           mensagemDeErro: 'Não foi possível obter sua localização. Libere o acesso no navegador e atualize a página.'
         })
@@ -41,9 +43,14 @@ export default class App extends Component {
       return <Loading mensagem="Aguardando permissão de localização..." />
     }
     return (
-      <p className="text-center mt-3">
-        Localização obtida: {this.state.latitude}, {this.state.longitude}
-      </p>
+      <Cartao cabecalho="Você está aqui">
+        <MeuPonto
+          latitude={this.state.latitude}
+          longitude={this.state.longitude}
+          horarioLocalizacao={this.state.horarioLocalizacao}
+          onAtualizar={this.obterLocalizacao}
+        />
+      </Cartao>
     )
   }
 
