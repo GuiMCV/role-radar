@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Button } from '@primereact/ui/button'
 import { GEOAPIFY_KEY } from '../utils/chaves'
+import { Refresh } from '@primeicons/react/refresh';
 
 export default class MeuPonto extends Component {
   state = {
@@ -42,10 +43,10 @@ export default class MeuPonto extends Component {
           <p className="text-muted m-1">Localização obtida há {decorrido} s</p>
         </div>
         <Button 
-            label="Atualizar localização" 
-            icon="pi pi-refresh" 
-            onClick={onAtualizar} 
-        />
+            onClick={onAtualizar} >
+            Atualizar localização
+            <Refresh/>
+        </Button>
       </div>
     )
   }

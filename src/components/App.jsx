@@ -3,6 +3,9 @@ import Creditos from './Creditos.jsx'
 import Loading from './Loading.jsx'
 import Cartao from './Cartao.jsx'
 import MeuPonto from './MeuPonto.jsx'
+import geoapifyClient from '../utils/geoapifyClient'
+import { Button } from '@primereact/ui/button'
+import { MapMarker } from '@primeicons/react'
 
 export default class App extends Component {
   state = {
@@ -31,6 +34,24 @@ export default class App extends Component {
     )
   }
 
+  onBuscaRealizada = (categoria, raio) => {
+    const { longitude, latitude } = this.state
+    geoapifyClient.get('/places', {
+      params: {
+        categories: categoria,
+        filter: `circle:${longitude},${latitude},${raio}`,
+        bias: `proximity:${longitude},${latitude}`,
+        limit: 20
+      }
+    })
+    .then((resposta) => {
+      console.log('Lugares encontrados:', resposta.data.features)
+    })
+    .catch((erro) => {
+      console.log('Erro na busca:', erro)
+    })
+  }
+
   componentDidMount() {
     this.obterLocalizacao()
   }
@@ -43,14 +64,23 @@ export default class App extends Component {
       return <Loading mensagem="Aguardando permissão de localização..." />
     }
     return (
-      <Cartao cabecalho="Você está aqui">
-        <MeuPonto
-          latitude={this.state.latitude}
-          longitude={this.state.longitude}
-          horarioLocalizacao={this.state.horarioLocalizacao}
-          onAtualizar={this.obterLocalizacao}
-        />
-      </Cartao>
+        <>
+            <Cartao cabecalho="Você está aqui">
+                <MeuPonto
+                latitude={this.state.latitude}
+                longitude={this.state.longitude}
+                horarioLocalizacao={this.state.horarioLocalizacao}
+                onAtualizar={this.obterLocalizacao}
+                />
+            </Cartao>
+            
+            <div className="text-center mt-3">
+                <Button onClick={() => this.onBuscaRealizada('catering', 1000)} >
+                    Testar busca
+                </Button>
+
+            </div>
+        </>
     )
   }
 
@@ -68,7 +98,7 @@ export default class App extends Component {
     return (
       <div>
         <h1 className="titulo">
-          <i className="pi pi-map-marker mr-2"></i>
+          <MapMarker size={32} />
           RolêRadar
         </h1>
         <p style={estiloSubtitulo}>Descubra o que existe perto de você</p>
@@ -77,7 +107,7 @@ export default class App extends Component {
 
         {this.renderizarConteudo()}
 
-        <footer style={{textAlign: 'center', marginTop: '40px'}}>
+        <footer style={{ textAlign: 'center', marginTop: '40px' }}>
           <p>RolêRadar © {obterAno()}</p>
         </footer>
       </div>
