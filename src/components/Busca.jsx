@@ -48,13 +48,18 @@ export default class Busca extends Component {
           {categorias.map((cat) => {
             
             const selecionado = this.state.categoria === cat.chave
+            const botaoSelecionado = {
+              backgroundColor: "#4F46E5", color: "#FFFFFF", borderColor: "#4F46E5" 
+            }
+            const botaoNaoSelecionado = {
+              backgroundColor: "#FFFFFF", color: "#4F46E5", borderColor: "#4F46E5"
+            }
             return (
                 <Button
                     key={cat.chave}
                     className="p-button-rounded"
-                    style={{ backgroundColor: "#4F46E5", color: "#FFFFFF", borderColor: "#4F46E5" }}
+                    style={selecionado ? botaoSelecionado : botaoNaoSelecionado}
                     type="button"
-                    variant={selecionado ? undefined : "outlined"}
                     onClick={() => this.setState({ categoria: cat.chave })}>
                     {cat.rotulo}
                 </Button>
