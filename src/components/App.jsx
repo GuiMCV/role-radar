@@ -6,6 +6,7 @@ import MeuPonto from './MeuPonto.jsx'
 import geoapifyClient from '../utils/geoapifyClient'
 import { Button } from '@primereact/ui/button'
 import { MapMarker } from '@primeicons/react'
+import Busca from './Busca.jsx'
 
 export default class App extends Component {
   state = {
@@ -74,12 +75,9 @@ export default class App extends Component {
                 />
             </Cartao>
             
-            <div className="text-center mt-3">
-                <Button onClick={() => this.onBuscaRealizada('catering', 1000)} >
-                    Testar busca
-                </Button>
-
-            </div>
+            <Cartao cabecalho="O que você procura?">
+                <Busca onBuscaRealizada={this.onBuscaRealizada} />
+            </Cartao>
         </>
     )
   }
