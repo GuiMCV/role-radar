@@ -50,7 +50,9 @@ export default class Busca extends Component {
             const selecionado = this.state.categoria === cat.chave
             return (
                 <Button
+                    key={cat.chave}
                     className="p-button-rounded"
+                    style={{ backgroundColor: "#4F46E5", color: "#FFFFFF", borderColor: "#4F46E5" }}
                     type="button"
                     variant={selecionado ? undefined : "outlined"}
                     onClick={() => this.setState({ categoria: cat.chave })}>
@@ -68,7 +70,8 @@ export default class Busca extends Component {
             </InputText>
         </div>
 
-        <Button className= "w-full">
+        <Button className= "w-full"
+            style={{ backgroundColor: "#4F46E5", color: "#FFFFFF", borderColor: "#4F46E5" }}>
             <Search/>Buscar
         </Button>
         {this.state.erro && (

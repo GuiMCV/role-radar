@@ -43,7 +43,8 @@ export default class MeuPonto extends Component {
           <p className="text-muted m-1">Localização obtida há {decorrido} s</p>
         </div>
         <Button 
-            onClick={onAtualizar} >
+            onClick={onAtualizar} 
+            style={{ backgroundColor: "#4F46E5", color: "#FFFFFF", borderColor: "#4F46E5" }}>
             Atualizar localização
             <Refresh/>
         </Button>

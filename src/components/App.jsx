@@ -7,13 +7,15 @@ import geoapifyClient from '../utils/geoapifyClient'
 import { Button } from '@primereact/ui/button'
 import { MapMarker } from '@primeicons/react'
 import Busca from './Busca.jsx'
+import ListaLugares from './ListaLugares.jsx'
 
 export default class App extends Component {
   state = {
     latitude: null,
     longitude: null,
     horarioLocalizacao: null,
-    mensagemDeErro: null
+    mensagemDeErro: null,
+    lugares: null
   }
 
   obterLocalizacao = () => {
@@ -46,7 +48,7 @@ export default class App extends Component {
       }
     })
     .then((resposta) => {
-      console.log('Lugares encontrados:', resposta.data.features)
+      this.setState({ lugares: resposta.data.features })
     })
     .catch((erro) => {
       console.log('Erro na busca:', erro)
@@ -57,6 +59,20 @@ export default class App extends Component {
     this.obterLocalizacao()
   }
 
+  renderizarColunaDireita = () => {
+    if (this.state.lugares === null) {
+      return null
+    }
+    if (this.state.lugares.length === 0) {
+      return (
+        <p className="text-center mt-3">
+          Nenhum lugar encontrado. Tente aumentar o raio.
+        </p>
+      )
+    }
+    return <ListaLugares lugares={this.state.lugares} />
+  }
+
   renderizarConteudo = () => {
     if (this.state.mensagemDeErro) {
       return <p className="text-center text-danger mt-3">{this.state.mensagemDeErro}</p>
@@ -65,20 +81,28 @@ export default class App extends Component {
       return <Loading mensagem="Aguardando permissão de localização..." />
     }
     return (
-        <>
-            <Cartao cabecalho="Você está aqui">
-                <MeuPonto
-                latitude={this.state.latitude}
-                longitude={this.state.longitude}
-                horarioLocalizacao={this.state.horarioLocalizacao}
-                onAtualizar={this.obterLocalizacao}
-                />
-            </Cartao>
-            
-            <Cartao cabecalho="O que você procura?">
-                <Busca onBuscaRealizada={this.onBuscaRealizada} />
-            </Cartao>
-        </>
+      <div className="grid">
+        {/* Coluna da Esquerda */}
+        <div className="col-12 md:col-6">
+          <Cartao cabecalho="Você está aqui">
+            <MeuPonto
+              latitude={this.state.latitude}
+              longitude={this.state.longitude}
+              horarioLocalizacao={this.state.horarioLocalizacao}
+              onAtualizar={this.obterLocalizacao}
+            />
+          </Cartao>
+
+          <Cartao cabecalho="O que você procura?">
+            <Busca onBuscaRealizada={this.onBuscaRealizada} />
+          </Cartao>
+        </div>
+
+        {/* Coluna da Direita (Resultados) */}
+        <div className="col-12 md:col-6">
+          {this.renderizarColunaDireita()}
+        </div>
+      </div>
     )
   }
 
