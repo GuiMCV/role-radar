@@ -8,6 +8,7 @@ import { Button } from '@primereact/ui/button'
 import { MapMarker } from '@primeicons/react'
 import Busca from './Busca.jsx'
 import ListaLugares from './ListaLugares.jsx'
+import MapaRadar from './MapaRadar.jsx'
 
 export default class App extends Component {
   state = {
@@ -15,7 +16,10 @@ export default class App extends Component {
     longitude: null,
     horarioLocalizacao: null,
     mensagemDeErro: null,
-    lugares: null
+    lugares: null,
+    buscando: false,
+    erroBusca: null,
+    raioBuscado: null
   }
 
   obterLocalizacao = () => {
@@ -39,6 +43,13 @@ export default class App extends Component {
 
   onBuscaRealizada = (categoria, raio) => {
     const { longitude, latitude } = this.state
+
+    this.setState ({
+      buscando: true,
+      erroBusca: null,
+      raioBuscado: raio
+    })
+
     geoapifyClient.get('/places', {
       params: {
         categories: categoria,
@@ -48,10 +59,17 @@ export default class App extends Component {
       }
     })
     .then((resposta) => {
-      this.setState({ lugares: resposta.data.features })
+      this.setState({ 
+        lugares: resposta.data.features,
+        buscando: false
+      })
     })
     .catch((erro) => {
       console.log('Erro na busca:', erro)
+      this.setState({
+        buscando: false, 
+        erroBusca: 'Não foi possível consultar os lugares. Tente novamente.'
+      })
     })
   }
 
@@ -60,17 +78,51 @@ export default class App extends Component {
   }
 
   renderizarColunaDireita = () => {
-    if (this.state.lugares === null) {
+    const { buscando, erroBusca, lugares, raioBuscado, latitude, longitude } = this.state
+
+    // 1. Durante a busca: exibe indicador de carregamento
+    if (buscando) {
+      return <Loading mensagem="Procurando lugares..." />
+    }
+
+    // 2. Em caso de erro na requisição
+    if (erroBusca) {
+      return <p className="text-center text-danger mt-3">{erroBusca}</p>
+    }
+
+    // 3. Antes de realizar qualquer busca
+    if (lugares === null) {
       return null
     }
-    if (this.state.lugares.length === 0) {
+
+    // 4. Busca sem resultados
+    if (lugares.length === 0) {
       return (
         <p className="text-center mt-3">
           Nenhum lugar encontrado. Tente aumentar o raio.
         </p>
       )
     }
-    return <ListaLugares lugares={this.state.lugares} />
+
+    // 5. Busca com resultados: exibe Resumo, Radar e Lista
+    const total = lugares.length
+    const textoResumo = total === 1
+      ? `1 lugar encontrado em até ${raioBuscado} m`
+      : `${total} lugares encontrados em até ${raioBuscado} m`
+
+    return (
+      <>
+        <p className="font-bold text-lg mb-2">{textoResumo}</p>
+        <Cartao cabecalho="Radar">
+          <MapaRadar
+            latitude={latitude}
+            longitude={longitude}
+            lugares={lugares}
+          />
+        </Cartao>
+        <ListaLugares lugares={lugares} />
+      </>
+    )
   }
 
   renderizarConteudo = () => {
@@ -82,7 +134,6 @@ export default class App extends Component {
     }
     return (
       <div className="grid">
-        {/* Coluna da Esquerda */}
         <div className="col-12 md:col-6">
           <Cartao cabecalho="Você está aqui">
             <MeuPonto
@@ -98,7 +149,6 @@ export default class App extends Component {
           </Cartao>
         </div>
 
-        {/* Coluna da Direita (Resultados) */}
         <div className="col-12 md:col-6">
           {this.renderizarColunaDireita()}
         </div>
